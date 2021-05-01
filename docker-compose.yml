@@ -1,0 +1,41 @@
+version: '3'
+services:
+  db:
+    build: ./db
+    container_name: aac-grid-db
+    volumes:
+        - ./data/db:/var/lib/postgresql/data
+        - ./.env:/.env
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    environment:
+        - POSTGRES_DB=$POSTGRES_DB
+        - POSTGRES_USER=$POSTGRES_USER
+        - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+  api:
+    build: ./api
+    container_name: aac-grid-api
+    volumes:
+      - ./api/flaskr:/flaskr
+      - ./api/model:/model
+      - ./.env:/.env
+    env_file:
+      - .env
+    ports:
+      - "3061:3061"
+    depends_on:  
+      - db
+  ui:
+    build: ./ui
+    container_name: aac-grid-ui
+    volumes:
+      - ./ui/docker-ui-entrypoint.sh:/app/docker-ui-entrypoint.sh
+      - ./ui/.react.env:/app/.env
+    env_file:
+      - ./ui/.react.env
+    ports:
+      - "3060:3060"
+    depends_on:
+      - api
